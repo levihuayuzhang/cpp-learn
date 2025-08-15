@@ -1,0 +1,6 @@
+message Person {
+    required uint64 id = 1;
+    required bytes name = 2;
+    required bytes  gender = 3;
+    required uint32 age = 4;
+};

@@ -1,3 +1,9 @@
-**/.idea
-**/build
-**/.cache
+.idea/
+build/
+.cache/
+*.o
+*.a
+*.so
+*.out
+*.lib
+*.exe
