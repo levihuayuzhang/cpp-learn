@@ -7,3 +7,5 @@ build/
 *.out
 *.lib
 *.exe
+**/*.pb.cc
+*.pb.h
