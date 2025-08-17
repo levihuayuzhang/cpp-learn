@@ -5,8 +5,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CUDA_STANDARD 20)
 set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 
+# set(CMAKE_CUDA_ARCHITECTURES native)
 set(CMAKE_CUDA_ARCHITECTURES 86)
+
+# set(CMAKE_CUDA_HOST_COMPILER clang++)
+# set(CUDAHOSTCXX clang++)
 
 add_executable(cuda-test src/main.cu)
 
-set_target_properties(cuda-test PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+# set_target_properties(cuda-test PROPERTIES CUDA_SEPARABLE_COMPILATION ON)

@@ -1,11 +1,12 @@
 .idea/
 build/
 .cache/
+*.pb.cc
+*.pb.h
 *.o
 *.a
 *.so
 *.out
 *.lib
+*.dll
 *.exe
-**/*.pb.cc
-*.pb.h
