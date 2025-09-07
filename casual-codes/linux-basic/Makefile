@@ -17,6 +17,8 @@ $(DEBUG_TEST_OBJECTS): $(DEBUG_TEST_SRC)
 
 # not building the file called `clean`
 # don't need any target
+# commands heading with `-` means do not stop if failed
 .PHONY: clean
 clean:
-	rm -f $(TARGET) $(DEBUG_TEST_OBJECTS)
+	-rm -f $(TARGET) $(DEBUG_TEST_OBJECTS)
+	@echo "Clean finished..."
