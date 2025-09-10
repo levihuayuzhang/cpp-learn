@@ -15,3 +15,7 @@ set_target_properties(concept-test PROPERTIES CXX_STANDARD 20)
 # set_property(TARGET concept-test PROPERTY CXX_STANDARD 20)
 add_executable(concept-test2 concept-test2.cpp)
 set_target_properties(concept-test2 PROPERTIES CXX_STANDARD 20)
+
+add_executable(lambda-test lambda-test.cpp)
+add_executable(lambda-capture-list lambda-capture-list.cpp)
+add_executable(function-object function-object.cpp)

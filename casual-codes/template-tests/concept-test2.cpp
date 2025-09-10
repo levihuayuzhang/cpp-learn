@@ -12,6 +12,8 @@ struct Test2 {
 };
 
 struct Test3 {};
+template <typename T1, typename T2>
+concept SameAs = std::is_same_v<T1, T2>;
 
 // pre-c++20
 // template <typename T>
@@ -35,10 +37,10 @@ struct Test3 {};
 // };
 template <typename T>
 concept HasMemIntF = requires(T t) {
-  {
-    t.f()
-  } -> std::same_as<int>;  // c++20 concept: type of return value of expr inside
-                           // the {} pass to same_as, need #include <concepts>
+  { t.f() } -> SameAs<int>;
+  // } -> std::same_as<int>;  // c++20 concept: type of return value of expr
+  // inside the {} pass to same_as. same_as<decltype(t.f(), int)> , need
+  // #include // <concepts>
 };
 
 // template <typename T>
