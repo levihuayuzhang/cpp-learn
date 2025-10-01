@@ -8,5 +8,7 @@ add_subdirectory(toy-threadpool)
 #add_subdirectory(clang-xray-test)
 add_subdirectory(thread-test)
 add_subdirectory(template-tests)
+add_subdirectory(object-model)
+add_subdirectory(stl-practice)
 
 add_executable(stdlibtest tests/stdlib-test.cpp)
