@@ -1,8 +1,10 @@
-#include <array>
+// #include <array>
+// #include <vector>
 #include <cstddef>
+#include <cstdlib>
 #include <memory>
 #include <type_traits>
-#include <vector>
+#include <utility>
 
 // linear table, sequential storage
 // consencutive memory space -> scaling
@@ -17,13 +19,35 @@ class Vector {
   using ValueType = T;
   using Pointer = T*;
 
+  class Iterator {
+   public:
+    auto operator*() -> T&;
+    auto operator->() -> T*;
+    auto operator++() -> void;
+    auto operator--() -> void;
+    auto operator[](intptr_t offset) -> Iterator;
+    auto operator==(const Iterator& iter) -> void;
+    auto operator!=(const Iterator& iter) -> void;
+
+   private:
+    // auto GetValue() -> T&;
+    // auto MoveBack(size_t offset) -> void;
+    // auto MoveFront(size_t offset) -> void;
+
+    T* data_;
+    Vector* vec_;
+    friend class Vector;
+  };
+
+  friend class Iterator;
+
   Vector();
   ~Vector();
 
-  Vector(const Vector&);
-  Vector(Vector&&);
+  Vector(const Vector& other);
+  Vector(Vector&& other) noexcept;
 
-  auto operator=(const Vector&) -> Vector&;
+  auto operator=(const Vector& other) -> Vector&;
   auto operator=(Vector&& other) -> Vector&;
 
   auto Size() const -> size_t;
@@ -37,21 +61,21 @@ class Vector {
   auto PopBack() -> void;
 
   auto At(size_t index) -> T&;
-  auto At(size_t index) const -> const T&;
+  [[nodiscard]] auto At(size_t index) const -> const T&;
 
   auto operator[](size_t index) -> T&;
   auto operator[](size_t index) const -> const T&;
 
-  auto Find(const T& t) -> T*;
-  auto Find(const T& t) const -> const T*;
-  auto Erase(T* t) -> T*;
+  auto Find(const T& t) -> Iterator;
+  [[nodiscard]] auto Find(const T& t) const -> const T*;
+  auto Erase(Iterator iter) -> Iterator;
 
-  auto begin() -> T*;
-  auto end() -> T*;
-  auto cbegin() const -> const T*;
-  auto cend() const -> const T*;
-  auto begin() const -> const T*;
-  auto end() const -> const T*;
+  auto begin() -> Iterator;
+  auto end() -> Iterator;
+  [[nodiscard]] auto cbegin() const -> const T*;
+  [[nodiscard]] auto cend() const -> const T*;
+  [[nodiscard]] auto begin() const -> const T*;
+  [[nodiscard]] auto end() const -> const T*;
 
  private:
   size_t capacity_;
@@ -82,7 +106,7 @@ Vector<T>::Vector(const Vector& other)
 }
 
 template <typename T>
-Vector<T>::Vector(Vector&& other) : capacity_(other.capacity_), size_(other.size_), data_(other.data_) {
+Vector<T>::Vector(Vector&& other) noexcept : capacity_(other.capacity_), size_(other.size_), data_(other.data_) {
   other.capacity_ = 0;
   other.size_ = 0;
   other.data_ = nullptr;
@@ -150,6 +174,7 @@ auto Vector<T>::PushBack(Args&&... args) -> void {
     }
 
     T* new_data = static_cast<T*>(operator new(sizeof(T) * capacity_));
+    new (new_data + size_) T(std::forward<Args>(args)...);
     for (size_t i = 0; i < size_; i++) {
       if constexpr (std::is_nothrow_move_constructible_v<T>) {
         new (new_data + i) T(std::move(data_[i]));
@@ -157,17 +182,16 @@ auto Vector<T>::PushBack(Args&&... args) -> void {
         new (new_data + i) T(data_[i]);
       }
     }
-    if constexpr (std::is_nothrow_move_constructible_v<T>) {
-      for (size_t i = 0; i < size_; i++) {
-        data_[i].~T();
-      }
+    for (size_t i = 0; i < size_; i++) {
+      data_[i].~T();
     }
 
     operator delete(data_);
     data_ = new_data;
+  } else {
+    new (data_ + size_) T(std::forward<Args>(args)...);
   }
 
-  new (data_ + size_) T(std::forward<Args>(args)...);
   size_++;
 }
 
@@ -214,31 +238,140 @@ auto Vector<T>::operator[](size_t index) const -> const T& {
 }
 
 template <typename T>
-auto Vector<T>::Find(const T& t) -> T* {}
+auto Vector<T>::Find(const T& t) -> Vector<T>::Iterator {
+  for (T* tmp = data_; tmp < data_ + size_; tmp++) {
+    if (tmp == t) {
+      Iterator iter;
+      iter.vec_ = this;
+      iter.data_ = tmp;
+      return iter;
+    }
+  }
+
+  return this->end();
+}
 
 template <typename T>
-auto Vector<T>::Find(const T& t) const -> const T* {}
+auto Vector<T>::Find(const T& t) const -> const T* {
+  for (const T* tmp = data_; tmp < data_ + size_; tmp++) {
+    if (tmp == t) {
+      return tmp;
+    }
+  }
+
+  return nullptr;
+}
 
 template <typename T>
-auto Vector<T>::Erase(T* t) -> T* {}
+auto Vector<T>::Erase(Vector<T>::Iterator iter) -> Vector<T>::Iterator {
+  if (iter.vec_ != this || iter.data_ - data_ < 0 || iter.data_ - data_ >= size_) {
+    throw 4;
+  }
+  for (T* tmp = iter.data_ + 1; tmp < data_ + size_; tmp++) {
+    if constexpr (std::is_nothrow_move_assignable_v<T>) {
+      tmp[-1] = std::move(tmp);
+    } else {
+      tmp[-1] = tmp;
+    }
+  }
+  size_--;
+  return iter;
+}
 
 template <typename T>
-auto Vector<T>::begin() -> T* {}
+auto Vector<T>::begin() -> Vector<T>::Iterator {
+  Iterator iter;
+  iter.data_ = data_;
+  return iter;
+}
 
 template <typename T>
-auto Vector<T>::end() -> T* {}
+auto Vector<T>::end() -> Vector<T>::Iterator {
+  return Iterator();
+}
 
 template <typename T>
-auto Vector<T>::cbegin() const -> const T* {}
+auto Vector<T>::cbegin() const -> const T* {
+  return data_;
+}
 
 template <typename T>
-auto Vector<T>::cend() const -> const T* {}
+auto Vector<T>::cend() const -> const T* {
+  return data_ + size_;
+}
 
 template <typename T>
-auto Vector<T>::begin() const -> const T* {}
+auto Vector<T>::begin() const -> const T* {
+  return this->cbegin();
+}
 
 template <typename T>
-auto Vector<T>::end() const -> const T* {}
+auto Vector<T>::end() const -> const T* {
+  return this->cend();
+}
+
+template <typename T>
+auto Vector<T>::Iterator::operator*() -> T& {
+  return *data_;
+}
+
+template <typename T>
+auto Vector<T>::Iterator::operator->() -> T* {
+  return data_;
+}
+
+template <typename T>
+auto Vector<T>::Iterator::operator++() -> void {
+  if (data_ - vec_->data_ >= vec_->size_) {
+    data_ = nullptr;
+  } else {
+    data_++;
+  }
+}
+
+template <typename T>
+auto Vector<T>::Iterator::operator--() -> void {
+  if (data_ <= vec_->data_) {
+    data_ = nullptr;
+  } else {
+    data_--;
+  }
+}
+
+template <typename T>
+auto Vector<T>::Iterator::operator[](intptr_t offset) -> Vector<T>::Iterator {
+  if (data_ + offset < vec_->data_ || data_ + offset >= vec_->data_ + vec_->size_) {
+    Iterator iter;
+    iter.vec_ = vec_;
+    iter.data_ = nullptr;
+    return iter;
+  }
+
+  Iterator iter;
+  iter.data_ = data_ + offset;
+  iter.vec_ = vec_;
+  return iter;
+}
+
+template <typename T>
+auto Vector<T>::Iterator::operator==(const Iterator& iter) -> void {
+  return data_ == iter.data_ && vec_ == iter.vec_;
+}
+
+template <typename T>
+auto Vector<T>::Iterator::operator!=(const Iterator& iter) -> void {
+  // return data_ != iter.data_ || vec_ != iter.vec_;
+  return !this->operator==(iter);
+}
+
+// template <typename T>
+// auto Vector<T>::Iterator::GetValue() -> T& {}
+
+// template <typename T>
+// auto Vector<T>::Iterator::MoveBack(size_t offset) -> void {}
+
+// template <typename T>
+// auto Vector<T>::Iterator::MoveFront(size_t offset) -> void {}
 
 }  // namespace demo
 
@@ -254,6 +387,8 @@ auto main(int argc, const char* argv[]) -> int {
   // std::vector<int> ve;
 
   demo::Vector<Test> ve;
+  // for (auto& item : ve) {
+  // }
 
   return 0;
 }
