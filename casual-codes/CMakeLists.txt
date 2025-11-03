@@ -10,5 +10,6 @@ add_subdirectory(thread-test)
 add_subdirectory(template-tests)
 add_subdirectory(object-model)
 add_subdirectory(stl-practice)
+add_subdirectory(literals)
 
 add_executable(stdlibtest tests/stdlib-test.cpp)

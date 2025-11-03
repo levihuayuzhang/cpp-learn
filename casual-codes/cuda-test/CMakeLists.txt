@@ -9,7 +9,10 @@ set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 set(CMAKE_CUDA_ARCHITECTURES 86)
 
 # set(CMAKE_CUDA_HOST_COMPILER clang++)
+# find_package(CUDA)
+find_package(CUDAToolkit REQUIRED)
 # set(CUDAHOSTCXX clang++)
+set(CMAKE_CUDA_HOST_COMPILER clang)
 
 add_executable(cuda-test src/main.cu)
 
