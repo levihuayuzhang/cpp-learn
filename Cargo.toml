@@ -2,4 +2,6 @@
 
 resolver = "3"
 
-members = ["casual-codes/simd-test/simd-test-rs"]
+members = [
+    # "casual-codes/simd-test/simd-test-rs"
+]

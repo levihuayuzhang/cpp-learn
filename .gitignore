@@ -1,10 +1,9 @@
-.idea/
-# .vscode/
 .vscode/settings.json
 build/
 cmake-build*/
 target/
 .cache/
+compile_comands.json
 *.pb.cc
 *.pb.h
 *.o

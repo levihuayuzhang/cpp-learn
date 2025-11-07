@@ -9,6 +9,13 @@ set(CMAKE_CXX_STANDARD 26)
 set(CXX_STANDARD_REQUIRED TRUE)
 # set(CMAKE_CXX_EXTENSIONS OFF)
 
+# find_program(SCCACHE sccache REQUIRED)
+# set(CMAKE_C_COMPILER_LAUNCHER ${SCCACHE})
+# set(CMAKE_CXX_COMPILER_LAUNCHER ${SCCACHE})
+# message(STATUS "Using sccache: ${SCCACHE}...")
+# message(STATUS "CMAKE_C_COMPILER_LAUNCHER: ${CMAKE_C_COMPILER_LAUNCHER}")
+# message(STATUS "CMAKE_CXX_COMPILER_LAUNCHER: ${CMAKE_CXX_COMPILER_LAUNCHER}")
+
 project(cpp-learn LANGUAGES CXX)
 
 # using LLVM (with libc++)
@@ -43,3 +50,4 @@ add_subdirectory(datastructure-algorithm)
 add_subdirectory(cppcia)
 add_subdirectory(casual-codes)
 add_subdirectory(leetcuda-practices)
+add_subdirectory(qt-learn)
