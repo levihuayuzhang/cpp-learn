@@ -5,6 +5,10 @@ cmake_minimum_required(VERSION 4.0.0)
 # set(CMAKE_GENERATOR "Unix Makefiles" CACHE INTERNAL "" FORCE)
 # set(CMAKE_VERBOSE_MAKEFILE TRUE)
 
+find_program(SCCACHE sccache REQUIRED)
+set(CMAKE_C_COMPILER_LAUNCHER ${SCCACHE})
+set(CMAKE_CXX_COMPILER_LAUNCHER ${SCCACHE})
+
 set(CMAKE_CXX_STANDARD 26)
 set(CXX_STANDARD_REQUIRED TRUE)
 # set(CMAKE_CXX_EXTENSIONS OFF)
@@ -16,14 +20,20 @@ set(CXX_STANDARD_REQUIRED TRUE)
 # message(STATUS "CMAKE_C_COMPILER_LAUNCHER: ${CMAKE_C_COMPILER_LAUNCHER}")
 # message(STATUS "CMAKE_CXX_COMPILER_LAUNCHER: ${CMAKE_CXX_COMPILER_LAUNCHER}")
 
+# cmake 4.4 std modules support
+set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD
+    "f35a9ac6-8463-4d38-8eec-5d6008153e7d"
+)
+
 project(cpp-learn LANGUAGES CXX)
 
 # using LLVM (with libc++)
 if(UNIX)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-        # set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
-        set(CMAKE_CXX_EXTENSIONS OFF)
+        # disable following 3 lines to use std modules on Linux.
+        # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+        # # set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
+        # set(CMAKE_CXX_EXTENSIONS OFF)
 
         if(CMAKE_SYSTEM_NAME MATCHES "Darwin" AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
             message(VERBOSE "Running in MacOS (Darwin) but not using AppleClang...")
@@ -51,3 +61,5 @@ add_subdirectory(cppcia)
 add_subdirectory(casual-codes)
 add_subdirectory(leetcuda-practices)
 add_subdirectory(qt-learn)
+add_subdirectory(professional-cpp-23)
+add_subdirectory(cuda-by-example)
