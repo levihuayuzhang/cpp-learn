@@ -41,3 +41,15 @@ target_link_libraries(ripple PRIVATE
     OpenGL::GL
     GLUT::GLUT
 )
+
+add_executable(dot-product
+    src/dot-product.cu
+)
+
+add_executable(shared-memory-bitmap
+    src/shared_memory_bitmap.cu
+)
+target_link_libraries(shared-memory-bitmap PRIVATE
+    OpenGL::GL
+    GLUT::GLUT
+)
